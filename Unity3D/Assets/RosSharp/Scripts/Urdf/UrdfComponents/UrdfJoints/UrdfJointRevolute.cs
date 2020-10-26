@@ -86,10 +86,12 @@ namespace RosSharp.Urdf
 
         protected override Joint.Limit ExportLimitData()
         {
+            // Quaternion: Unity(x,y,z,w) -> ROS(z,-x,y,-w)
+            float direction = (Math.Abs(UnityJoint.axis.x) > 0.0f) ? 1.0f : -1.0f;
             HingeJointLimitsManager hingeJointLimits = GetComponent<HingeJointLimitsManager>();
             return new Joint.Limit(
-                Math.Round(hingeJointLimits.LargeAngleLimitMax * -1.0f * Mathf.Deg2Rad, RoundDigits),
-                Math.Round(hingeJointLimits.LargeAngleLimitMin * -1.0f * Mathf.Deg2Rad, RoundDigits),
+                Math.Round(hingeJointLimits.LargeAngleLimitMax * direction * Mathf.Deg2Rad, RoundDigits),
+                Math.Round(hingeJointLimits.LargeAngleLimitMin * direction * Mathf.Deg2Rad, RoundDigits),
                 EffortLimit,
                 VelocityLimit);
         }

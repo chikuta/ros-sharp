@@ -12,7 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
+using System;
+using System.Linq;
 using UnityEngine;
 
 namespace RosSharp
@@ -158,8 +159,12 @@ namespace RosSharp
 
         public void InitializeLimits(Urdf.Joint.Limit limit, HingeJoint joint)
         {
-            LargeAngleLimitMin = (float)limit.upper * -1.0f * Mathf.Rad2Deg;
-            LargeAngleLimitMax = (float)limit.lower * -1.0f * Mathf.Rad2Deg;
+            // Quaternion: ROS(x,y,z,w) -> Unity(-y,z,x,-w)
+            float direction = (Math.Abs(joint.axis.y) > 0.0f) ? 1.0f : -1.0f;
+            float[] unityLimits = new float[] {(float)limit.upper * direction * Mathf.Rad2Deg, (float)limit.lower * direction * Mathf.Rad2Deg};
+
+            LargeAngleLimitMin = unityLimits.Min();
+            LargeAngleLimitMax = unityLimits.Max();
 
             _hingeJoint = joint;
 
